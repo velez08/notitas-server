@@ -11,7 +11,7 @@ const express    = require('express');
 const multer     = require('multer');
 const { Expo }   = require('expo-server-sdk');
 const path       = require('path');
-const admin      = require('firebase-admin'); // <--- Solo uno de estos
+const admin      = require('firebase-admin'); // Declarado una sola vez
 
 const app = express();
 app.use(express.json());
@@ -26,6 +26,7 @@ if (process.env.FIREBASE_PROJECT_ID) {
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
   };
 } else {
+  // Solo entra aquí si NO estamos en Railway
   serviceAccount = require('./clave-firebase.json');
 }
 
