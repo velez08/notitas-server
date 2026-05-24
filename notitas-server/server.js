@@ -8,16 +8,17 @@
 // ============================================================
 
 const express    = require('express');
-const admin      = require('firebase-admin');
 const multer     = require('multer');
 const { Expo }   = require('expo-server-sdk');
 const path       = require('path');
-// ── Firebase init ────────────────────────────────────────────
-const admin = require('firebase-admin');
+const admin      = require('firebase-admin'); // <--- Solo uno de estos
 
+const app = express();
+app.use(express.json());
+
+// ── Firebase init ────────────────────────────────────────────
 let serviceAccount;
 
-// Si estamos en Railway, usamos variables de entorno
 if (process.env.FIREBASE_PROJECT_ID) {
   serviceAccount = {
     project_id: process.env.FIREBASE_PROJECT_ID,
@@ -25,7 +26,6 @@ if (process.env.FIREBASE_PROJECT_ID) {
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
   };
 } else {
-  // Si estamos en local, cargamos el archivo JSON
   serviceAccount = require('./clave-firebase.json');
 }
 
@@ -33,11 +33,11 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   storageBucket: `${serviceAccount.project_id}.appspot.com`
 });
-// ─────────────────────────────────────────────────────────────
 
 const db     = admin.firestore();
 const bucket = admin.storage().bucket();
 const expo   = new Expo();
+// ─────────────────────────────────────────────────────────────
 
 // ── Multer: recibe imagen en memoria (max 5 MB) ──────────────
 const upload = multer({
