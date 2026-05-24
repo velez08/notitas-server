@@ -19,19 +19,23 @@ app.use(express.json());
 // ── Firebase init ────────────────────────────────────────────
 let serviceAccount;
 
-// FORZAMOS a que si detecta las variables de entorno, use esas y punto.
+// Usamos process.env.FIREBASE_PROJECT_ID como prueba definitiva
 if (process.env.FIREBASE_PROJECT_ID) {
-  console.log("Detectado entorno de producción (Railway). Usando variables de entorno.");
+  console.log("¡ÉXITO! Variables de entorno detectadas.");
   serviceAccount = {
     project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    private_key: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : '',
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
   };
 } else {
-  console.log("Entorno local detectado. Cargando clave-firebase.json.");
-  serviceAccount = require('./clave-firebase.json');
+  console.log("Variables no detectadas, intentando cargar archivo...");
+  try {
+    serviceAccount = require('./clave-firebase.json');
+  } catch (e) {
+    console.error("ERROR CRÍTICO: No se encontraron variables de entorno NI el archivo JSON.");
+    process.exit(1); // Detiene el servidor si no hay credenciales
+  }
 }
-
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   storageBucket: `${serviceAccount.project_id}.appspot.com`
