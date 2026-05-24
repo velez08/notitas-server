@@ -12,16 +12,26 @@ const admin      = require('firebase-admin');
 const multer     = require('multer');
 const { Expo }   = require('expo-server-sdk');
 const path       = require('path');
-
-const app = express();
-app.use(express.json());
-
 // ── Firebase init ────────────────────────────────────────────
-const serviceAccount = require('./clave-firebase.json');
+let serviceAccount;
+
+// Verificamos si estamos en Railway (donde existen estas variables)
+if (process.env.FIREBASE_PROJECT_ID) {
+  serviceAccount = {
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  };
+} else {
+  // Si estamos en local, usamos el archivo
+  serviceAccount = require('./clave-firebase.json');
+}
+
 admin.initializeApp({
-  credential:  admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(serviceAccount),
   storageBucket: `${serviceAccount.project_id}.appspot.com`
 });
+// ─────────────────────────────────────────────────────────────
 
 const db     = admin.firestore();
 const bucket = admin.storage().bucket();
@@ -327,8 +337,8 @@ app.post('/actualizar-token', async (req, res) => {
 
 // ── Inicio del servidor ──────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Servidor Notitas corriendo en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Servidor Notitas corriendo en el puerto ${PORT}`);
 });
 
 module.exports = app;
