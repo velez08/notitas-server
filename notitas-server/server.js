@@ -11,7 +11,7 @@ const express    = require('express');
 const multer     = require('multer');
 const { Expo }   = require('expo-server-sdk');
 const path       = require('path');
-const admin      = require('firebase-admin'); // Declarado una sola vez
+const admin      = require('firebase-admin');
 
 const app = express();
 app.use(express.json());
@@ -19,14 +19,16 @@ app.use(express.json());
 // ── Firebase init ────────────────────────────────────────────
 let serviceAccount;
 
+// FORZAMOS a que si detecta las variables de entorno, use esas y punto.
 if (process.env.FIREBASE_PROJECT_ID) {
+  console.log("Detectado entorno de producción (Railway). Usando variables de entorno.");
   serviceAccount = {
     project_id: process.env.FIREBASE_PROJECT_ID,
     private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
   };
 } else {
-  // Solo entra aquí si NO estamos en Railway
+  console.log("Entorno local detectado. Cargando clave-firebase.json.");
   serviceAccount = require('./clave-firebase.json');
 }
 
