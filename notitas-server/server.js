@@ -13,9 +13,11 @@ const multer     = require('multer');
 const { Expo }   = require('expo-server-sdk');
 const path       = require('path');
 // ── Firebase init ────────────────────────────────────────────
+const admin = require('firebase-admin');
+
 let serviceAccount;
 
-// Verificamos si estamos en Railway (donde existen estas variables)
+// Si estamos en Railway, usamos variables de entorno
 if (process.env.FIREBASE_PROJECT_ID) {
   serviceAccount = {
     project_id: process.env.FIREBASE_PROJECT_ID,
@@ -23,7 +25,7 @@ if (process.env.FIREBASE_PROJECT_ID) {
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
   };
 } else {
-  // Si estamos en local, usamos el archivo
+  // Si estamos en local, cargamos el archivo JSON
   serviceAccount = require('./clave-firebase.json');
 }
 
